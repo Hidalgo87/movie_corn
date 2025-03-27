@@ -13,6 +13,14 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'MovieCorn',
+      theme: ThemeData(
+        textSelectionTheme: TextSelectionThemeData(
+          cursorColor: Colors.black,
+          selectionColor: Colors.black,
+          selectionHandleColor:
+              Colors.black54, // Color de la "bolita" del cursor
+        ),
+      ),
       debugShowCheckedModeBanner: false,
       home: HomeScreen(),
     );
