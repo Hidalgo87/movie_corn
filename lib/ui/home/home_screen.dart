@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:movie_corn/ui/home/content_list_screen.dart';
+import 'package:movie_corn/ui/content_list/content_list_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});

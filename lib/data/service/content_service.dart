@@ -4,11 +4,10 @@ import 'package:http/http.dart' as http;
 import 'package:movie_corn/domain/model/content.dart';
 
 class ContentService {
-  Future<List<Content>> getContentsByName(String contentName) async {
-    final url = Uri.https('https://www.omdbapi.com', '/', {
-      'apikey': '118f3b2',
-      's': contentName,
-    });
+  Future<List<Content>> fetchContentsByName(String contentName) async {
+    final url = Uri.parse(
+      "https://www.omdbapi.com/?apikey=118f3b2&s=$contentName",
+    );
     final response = await http.get(url);
 
     try {
