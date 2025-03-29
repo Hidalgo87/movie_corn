@@ -4,6 +4,7 @@ import 'package:movie_corn/domain/model/content.dart';
 import 'package:movie_corn/ui/content_list/content_card/content_card.dart';
 import 'package:movie_corn/ui/widgets/empty_state.dart';
 import 'package:movie_corn/ui/widgets/loading.dart';
+import 'package:movie_corn/ui/movie_corn_bar/movie_corn_bar.dart';
 
 class ContentListScreen extends StatefulWidget {
   const ContentListScreen({super.key});
@@ -18,13 +19,13 @@ class _ContentListScreenState extends State<ContentListScreen> {
 
   final ContentService _contentService = ContentService();
 
-  Future<void> _fetchContentList() async {
+  Future<void> _fetchContentList(String title) async {
     setState(() {
       _isLoading = true;
     });
     try {
       await Future.delayed(Duration(seconds: 2));
-      final contentList = await _contentService.fetchContentsByName('nemo');
+      final contentList = await _contentService.fetchContentsByName(title);
       setState(() {
         _contentList = contentList;
         _isLoading = false;
@@ -32,14 +33,10 @@ class _ContentListScreenState extends State<ContentListScreen> {
     } catch (e) {
       setState(() {
         _isLoading = false;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.toString())));
       });
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to load content'),
-          backgroundColor: Colors.red,
-        ),
-      );
     } finally {
       setState(() {
         _isLoading = false;
@@ -50,31 +47,28 @@ class _ContentListScreenState extends State<ContentListScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchContentList();
+    _fetchContentList('dark');
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Content List',
-          style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: Color.fromARGB(255, 255, 186, 36),
-      ),
+      appBar: MovieCornBar(title: 'Content List'),
       body: SafeArea(
-        child:
-            _isLoading
-                ? Loading()
-                : _contentList.isEmpty
-                ? EmptyState()
-                : Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [_search(), _showContentList()],
-                  ),
-                ),
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              _search(),
+              _isLoading
+                  ? Loading()
+                  : _contentList.isEmpty
+                  ? EmptyState()
+                  : _showContentList(),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -83,6 +77,9 @@ class _ContentListScreenState extends State<ContentListScreen> {
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: TextField(
+        onSubmitted: (value) {
+          _fetchContentList(value);
+        },
         decoration: InputDecoration(
           labelText: 'Search',
           labelStyle: TextStyle(color: Colors.black, fontSize: 20),
@@ -105,9 +102,7 @@ class _ContentListScreenState extends State<ContentListScreen> {
       child: ListView.builder(
         itemCount: _contentList.length,
         itemBuilder: (context, index) {
-          return ContentCard(
-            content: _contentList[index],
-          );
+          return ContentCard(content: _contentList[index]);
         },
       ),
     );
